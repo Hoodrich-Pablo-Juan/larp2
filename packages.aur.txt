@@ -1,0 +1,6 @@
+antigravity-cli
+ttf-quicksand-variable
+vscodium-bin
+waybar-cava-git
+yay
+yay-debug
