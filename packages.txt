@@ -52,4 +52,8 @@ zram-generator
 brightnessctl
 playerctl
 starship
+wireplumber
+pipewire
+pipewire-pulse
+
 
