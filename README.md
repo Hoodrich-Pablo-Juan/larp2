@@ -33,6 +33,7 @@ larp2/
 │   └── VSCodium/
 │       └── User/
 │           └── settings.json
+├── wallpapers/              # Wallpapers symlinked to ~/Pictures/Wallpapers
 ├── install.sh               # Install and symlink script
 ├── packages.txt             # Native Arch packages installed on this system
 ├── packages.aur.txt         # AUR packages installed on this system
@@ -59,6 +60,8 @@ To apply these configuration files onto a new system or restore them on your cur
 1. **Verifies Dependencies**: On Arch Linux, it checks if any native or AUR packages from `packages.txt` and `packages.aur.txt` are missing, and offers to install them automatically using `pacman` and your AUR helper (`yay`/`paru`).
 2. **Safe Backups**: If you have existing files/directories at the target locations (e.g. `~/.config/kitty`), the script will automatically move them to a timestamped backup folder (`~/.config-backup-YYYYMMDDHHMMSS`) before linking. Your data will never be silently overwritten.
 3. **Symlinks Configs**: Creates symbolic links from the repository's `config/` directory into `~/.config/`.
+4. **Links Wallpapers**: Creates a symbolic link for `wallpapers/` into `~/Pictures/Wallpapers`.
+5. **Sets Default Shell**: Detects if your active shell is not Fish, and offers to automatically change it using `chsh`.
 
 ---
 

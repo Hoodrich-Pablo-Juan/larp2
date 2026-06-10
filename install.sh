@@ -203,7 +203,32 @@ if [ -f "$vscodium_src" ]; then
     ln -sf "$vscodium_src" "$vscodium_target_file"
 fi
 
+# 4. Link Wallpapers
+wallpaper_src="$SCRIPT_DIR/wallpapers"
+wallpaper_target="$HOME/Pictures/Wallpapers"
+
+if [ -d "$wallpaper_src" ]; then
+    info "Installing wallpapers..."
+    mkdir -p "$(dirname "$wallpaper_target")"
+    backup_item "$wallpaper_target" "Pictures/Wallpapers"
+    
+    info "Linking: $wallpaper_target -> $wallpaper_src"
+    ln -sfn "$wallpaper_src" "$wallpaper_target"
+fi
+
+# 5. Set Fish as default shell
+if [[ "$SHELL" != *"/fish" ]]; then
+    if command -v fish &>/dev/null; then
+        if prompt_yes_no "Would you like to set Fish as your default shell?"; then
+            info "Changing default shell to Fish..."
+            chsh -s "$(command -v fish)"
+            success "Default shell changed to Fish. (Please log out and log back in for this to take effect)"
+        fi
+    fi
+fi
+
 success "Dotfiles installation and symlinking complete!"
 if [ "$BACKUP_CREATED" = true ]; then
     info "Your old configurations have been backed up to: $BACKUP_DIR"
 fi
+
