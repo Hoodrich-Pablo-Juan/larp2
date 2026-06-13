@@ -301,7 +301,15 @@ EOF
     success "gwfox theme and persistence applied."
 fi
 
-# 6. Set Fish as default shell
+# 6. Enable System Services
+info "Configuring system services..."
+if command -v asusctl &>/dev/null; then
+    info "Enabling asusd service..."
+    sudo systemctl enable --now asusd
+    success "Asusd service active."
+fi
+
+# 7. Set Fish as default shell
 if [[ "$SHELL" != *"/fish" ]]; then
     if command -v fish &>/dev/null; then
         if prompt_yes_no "Would you like to set Fish as your default shell?"; then
