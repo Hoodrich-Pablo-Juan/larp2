@@ -1,31 +1,31 @@
-@import "colors/colors.css";
+@import "colors/vercel.css";
 
 * {
 
 	all: unset;
 
 	/* Global style variables */
-	--border-radius: 16px;
-	--border-radius-s: 8px;
-	--border-radius-xl: 18px;
+	--border-radius: 12px;
+	--border-radius-s: 6px;
+	--border-radius-xl: 14px;
 
 	/* Shadows: set to none to disable */
-	--shadow: 2px 4px 10px rgba(0,0,0,0.15);
+	--shadow: 0 8px 32px rgba(0,0,0,0.5);
 	
-	font-family: "Quicksand";
-    font-weight: 700;
+	font-family: "Geist Sans", "Inter", sans-serif;
+    font-weight: 600;
 }
 
 .notification {
-	padding: 5px;
+	padding: 8px;
 }
 
 .notification-background {
 	background: @notification-bg;
 	border-radius: var(--border-radius);
-	margin: 8px;
+	border: 1px solid @border-glass;
+	margin: 4px;
 	padding: 0;
-	/* box-shadow: none; */
 }
 
 .notification-background .close-button {

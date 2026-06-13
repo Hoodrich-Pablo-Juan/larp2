@@ -1,13 +1,14 @@
-@import "colors/gruvbox-material.css";
+@import "colors/vercel.css";
 
 * {
     all: unset;
-    font-family: "Iosevka Nerd Font Propo", monospace;
+    font-family: "Geist Sans", "Inter", sans-serif;
+    font-weight: 600;
     transition: none;
 }
 
 window#waybar {
-    background-color: rgba(29, 32, 33, 0.99); /* @bg0 with forced alpha */
+    background-color: @bg-glass;
     color: @fg;
     border-radius: 0 0 10px 10px;
 }
@@ -30,7 +31,7 @@ window#waybar {
 }
 
 #workspaces button.active {
-    background-color: @blue;
+    background-color: @white;
     min-width: 1.4rem;
     font-weight: 800;
 }
@@ -40,6 +41,11 @@ window#waybar {
     margin: 0 15px;
     font-weight: 700;
     font-size: 1.12rem;
+}
+
+#pulseaudio, #battery {
+    padding: 0 10px;
+    color: @fg-muted;
 }
 
 .modules-left {
@@ -54,4 +60,5 @@ window#waybar {
     margin: 12px;
     font-size: 0.7rem;
     letter-spacing: 1px;
+    color: @white;
 }

@@ -1,0 +1,25 @@
+@define-color bg0 #000000;
+@define-color bg1 #0a0a0a;
+@define-color bg2 #111111;
+@define-color bg3 #171717;
+@define-color bg4 #262626;
+
+@define-color bg-glass rgba(0, 0, 0, 0.6);
+@define-color border-glass rgba(255, 255, 255, 0.1);
+
+@define-color fg #ffffff;
+@define-color fg-muted #666666;
+
+@define-color background @bg1;
+@define-color background-alt @bg2;
+@define-color hover @bg3;
+@define-color selected @white;
+
+@define-color text @fg;
+@define-color text-alt @fg-muted;
+
+@define-color notification-bg @bg-glass;
+@define-color center-bg @bg-glass;
+@define-color center-notification-bg @bg2;
+
+@define-color urgent #ffffff;

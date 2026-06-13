@@ -55,5 +55,6 @@ starship
 wireplumber
 pipewire
 pipewire-pulse
+hypridle
 
 

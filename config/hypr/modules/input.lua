@@ -7,7 +7,7 @@ hl.config({
         kb_layout  = "us",
         kb_variant = "colemak_dh",
         kb_model   = "",
-        kb_options = "",
+        kb_options = "caps:super",
         kb_rules   = "",
 
         follow_mouse = 1,

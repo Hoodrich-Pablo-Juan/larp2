@@ -166,7 +166,7 @@ element normal.active {
 }
 element selected.normal {
     background-color:            @selected;
-    text-color:                  @foreground;
+    text-color:                  #000000;
 }
 element selected.urgent {
     background-color:            @urgent;

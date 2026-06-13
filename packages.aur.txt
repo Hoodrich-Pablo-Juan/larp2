@@ -2,5 +2,6 @@ antigravity-cli
 ttf-quicksand-variable
 vscodium-bin
 waybar-cava-git
+librewolf-bin
 yay
 yay-debug

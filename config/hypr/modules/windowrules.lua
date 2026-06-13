@@ -41,6 +41,18 @@ hl.window_rule({
     opacity = 0.8,
 })
 
+hl.window_rule({
+    name = "vscode-transparency",
+    match = { class = "VSCodium" },
+    opacity = "0.95 0.90",
+})
+
+hl.window_rule({
+    name = "librewolf-transparency",
+    match = { class = "librewolf" },
+    opacity = "0.95 0.90",
+})
+
 hl.layer_rule({
     name = "rofi_popup",
     match = { namespace = "rofi" },
@@ -57,7 +69,29 @@ hl.layer_rule ({
 })
 
 hl.layer_rule({
-    name = "waybar-no-anim",
+    name = "waybar-blur",
     match = { namespace = "waybar" },
-    animation = "none"
+    blur = true,
+    ignore_alpha = true,
+})
+
+hl.layer_rule({
+    name = "swaync-blur",
+    match = { namespace = "swaync-control-center" },
+    blur = true,
+    ignore_alpha = true,
+})
+
+hl.layer_rule({
+    name = "swaync-notification-blur",
+    match = { namespace = "swaync-notification-window" },
+    blur = true,
+    ignore_alpha = true,
+})
+
+hl.layer_rule({
+    name = "rofi-blur",
+    match = { namespace = "rofi" },
+    blur = true,
+    ignore_alpha = true,
 })

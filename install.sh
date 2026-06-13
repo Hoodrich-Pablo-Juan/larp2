@@ -216,7 +216,92 @@ if [ -d "$wallpaper_src" ]; then
     ln -sfn "$wallpaper_src" "$wallpaper_target"
 fi
 
-# 5. Set Fish as default shell
+# 5. LibreWolf Configuration & Extensions
+if command -v librewolf &>/dev/null; then
+    info "Configuring LibreWolf (Search, Cookies, Extensions, gwfox Theme)..."
+    
+    # 5.1 System-wide policies.json
+    LIBREWOLF_DIST_DIR="/usr/lib/librewolf/distribution"
+    if [ -f "$REPO_CONFIG_DIR/librewolf/policies.json" ]; then
+        sudo mkdir -p "$LIBREWOLF_DIST_DIR"
+        sudo cp "$REPO_CONFIG_DIR/librewolf/policies.json" "$LIBREWOLF_DIST_DIR/policies.json"
+        success "LibreWolf policies installed."
+    fi
+
+    # 5.2 System-wide overrides
+    if [ -f "$REPO_CONFIG_DIR/librewolf/librewolf.overrides.cfg" ]; then
+        sudo cp "$REPO_CONFIG_DIR/librewolf/librewolf.overrides.cfg" "/usr/lib/librewolf/librewolf.overrides.cfg"
+        success "LibreWolf system overrides installed."
+    fi
+
+    # 5.3 Integrated gwfox theme and profile setup (Ultimate Shotgun)
+    info "Deploying gwfox theme to all profiles..."
+    
+    REPO_URL="https://github.com/akkva/gwfox"
+    TEMP_DIR="/tmp/gwfox_theme"
+    rm -rf "$TEMP_DIR"
+    git clone --depth 1 "$REPO_URL" "$TEMP_DIR" &>/dev/null
+
+    BASE_DIRS=( "$HOME/.librewolf" "$HOME/.config/librewolf/librewolf" )
+    
+    for base in "${BASE_DIRS[@]}"; do
+        if [ -d "$base" ]; then
+            # Find EVERY profile (any dir with prefs.js)
+            while IFS= read -r prefs_file; do
+                pdir=$(dirname "$prefs_file")
+                info "  -> Applying gwfox to: $pdir"
+                mkdir -p "$pdir/chrome"
+                cp "$TEMP_DIR/userChrome.css" "$pdir/chrome/"
+                cp "$TEMP_DIR/userContent.css" "$pdir/chrome/"
+                
+                # Activate theme, dark mode, and persistence in this profile
+                cat >> "$pdir/user.js" <<EOF
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+user_pref("svg.context-properties.content.enabled", true);
+user_pref("browser.newtabpage.activity-stream.nova.enabled", false);
+user_pref("widget.gtk.rounded-bottom-corners.enabled", true);
+user_pref("layout.css.color-mix.enabled", true);
+user_pref("browser.search.defaultenginename", "Google");
+user_pref("browser.search.selectedEngine", "Google");
+user_pref("privacy.clearOnShutdown.cookies", false);
+user_pref("privacy.sanitize.sanitizeOnShutdown", false);
+user_pref("network.cookie.lifetimePolicy", 0);
+user_pref("privacy.resistFingerprinting", false);
+user_pref("privacy.fingerprintingProtection", true);
+user_pref("privacy.fingerprintingProtection.overrides", "+AllTargets,-CSSPrefersColorScheme");
+user_pref("ui.systemUsesDarkTheme", 1);
+user_pref("layout.css.prefers-color-scheme.content-override", 2);
+user_pref("browser.in-content.dark-mode", true);
+user_pref("browser.theme.content-theme", 2);
+user_pref("browser.theme.toolbar-theme", 2);
+user_pref("devtools.theme", "dark");
+EOF
+            done < <(find "$base" -name "prefs.js")
+
+            # Global/Directory level overrides (Strongest)
+            cat > "$base/librewolf.overrides.cfg" <<EOF
+defaultPref("privacy.clearOnShutdown.cookies", false);
+defaultPref("privacy.sanitize.sanitizeOnShutdown", false);
+defaultPref("network.cookie.lifetimePolicy", 0);
+defaultPref("browser.search.defaultenginename", "Google");
+defaultPref("browser.search.selectedEngine", "Google");
+defaultPref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+defaultPref("svg.context-properties.content.enabled", true);
+defaultPref("widget.gtk.rounded-bottom-corners.enabled", true);
+defaultPref("privacy.resistFingerprinting", false);
+defaultPref("ui.systemUsesDarkTheme", 1);
+defaultPref("layout.css.prefers-color-scheme.content-override", 2);
+defaultPref("browser.in-content.dark-mode", true);
+defaultPref("browser.theme.content-theme", 2);
+defaultPref("browser.theme.toolbar-theme", 2);
+defaultPref("devtools.theme", "dark");
+EOF
+        fi
+    done
+    success "gwfox theme and persistence applied."
+fi
+
+# 6. Set Fish as default shell
 if [[ "$SHELL" != *"/fish" ]]; then
     if command -v fish &>/dev/null; then
         if prompt_yes_no "Would you like to set Fish as your default shell?"; then
@@ -231,4 +316,3 @@ success "Dotfiles installation and symlinking complete!"
 if [ "$BACKUP_CREATED" = true ]; then
     info "Your old configurations have been backed up to: $BACKUP_DIR"
 fi
-

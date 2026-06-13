@@ -25,6 +25,8 @@
         "all-outputs": true,
         "format": "{icon}",
         "on-click": "activate",
+        "on-scroll-up": "hyprctl dispatch workspace e-1",
+        "on-scroll-down": "hyprctl dispatch workspace e+1",
         "persistent-workspaces": {
             "*": [1, 2, 3, 4, 5]
         },
@@ -45,7 +47,7 @@
         }
     },
     "pulseaudio": {
-        "format": "{icon} {volume}%",
+        "format": "{icon}  {volume}%",
         "format-bluetooth": " {volume}%",
         "format-muted": "",
         "format-icons": {
@@ -59,6 +61,8 @@
             "default": ["󰖀", "󰕾"]
         },
         "scroll-step": 1,
+        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 1%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
         "on-click": "pavucontrol",
         "ignored-sinks": ["Easy Effects Sink"]
     },

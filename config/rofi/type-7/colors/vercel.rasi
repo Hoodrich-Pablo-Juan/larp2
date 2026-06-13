@@ -1,0 +1,12 @@
+/**
+ * Vercel / Tesla inspired monochromatic theme
+ **/
+
+* {
+    background:     rgba(0, 0, 0, 0.6);
+    background-alt: rgba(255, 255, 255, 0.05);
+    foreground:     #FFFFFF;
+    selected:       #FFFFFF;
+    active:         #FFFFFF;
+    urgent:         #FFFFFF;
+}

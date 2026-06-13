@@ -7,7 +7,7 @@ hl.monitor({
     output   = "",
     mode     = "preferred",
     position = "auto",
-    scale    = "auto",
+    scale    = 1.5,
 })
 
 hl.workspace_rule({ workspace = "1", persistent = true })
