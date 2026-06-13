@@ -21,6 +21,11 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("librewolf"))
+
+-- Asusctl Charge Limit (Bypass Charging)
+hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("asusctl -c 80 && notify-send 'Asusctl' 'Bypass Charging Enabled (80%)'"))
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("asusctl -c 100 && notify-send 'Asusctl' 'Full Charging Enabled (100%)'"))
+
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 

@@ -3,5 +3,6 @@ ttf-quicksand-variable
 vscodium-bin
 waybar-cava-git
 librewolf-bin
+asusctl
 yay
 yay-debug
