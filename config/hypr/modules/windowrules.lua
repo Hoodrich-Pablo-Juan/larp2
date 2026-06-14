@@ -50,7 +50,7 @@ hl.window_rule({
 hl.window_rule({
     name = "librewolf-transparency",
     match = { class = "librewolf" },
-    opacity = "0.95 0.90",
+    opacity = "0.90 0.85",
 })
 
 hl.layer_rule({
