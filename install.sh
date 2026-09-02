@@ -169,6 +169,7 @@ configs_to_link=(
     "kitty"
     "rofi"
     "starship.toml"
+    "sunshine"
     "swaync"
     "waybar"
 )
@@ -203,7 +204,18 @@ if [ -f "$vscodium_src" ]; then
     ln -sf "$vscodium_src" "$vscodium_target_file"
 fi
 
-# 4. Link Wallpapers
+# 4. Apply GNOME Theme + Icon Settings
+info "Applying GTK and icon theme settings..."
+if command -v gsettings &>/dev/null; then
+    gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark' || true
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' || true
+    gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-black-dark' || true
+    success "GTK and icon themes applied."
+else
+    warn "gsettings not available. Set GTK/icon themes manually."
+fi
+
+# 5. Link Wallpapers
 wallpaper_src="$SCRIPT_DIR/wallpapers"
 wallpaper_target="$HOME/Pictures/Wallpapers"
 
@@ -216,7 +228,22 @@ if [ -d "$wallpaper_src" ]; then
     ln -sfn "$wallpaper_src" "$wallpaper_target"
 fi
 
-# 5. LibreWolf Configuration & Extensions
+# 6. Install Helper Scripts
+scripts_src="$SCRIPT_DIR/scripts"
+if [ -d "$scripts_src" ]; then
+    info "Installing helper scripts to ~/.local/bin..."
+    mkdir -p "$HOME/.local/bin"
+    for script_file in "$scripts_src"/*; do
+        if [ -f "$script_file" ]; then
+            chmod +x "$script_file"
+            cp -f "$script_file" "$HOME/.local/bin/"
+            chmod +x "$HOME/.local/bin/$(basename "$script_file")"
+        fi
+    done
+    success "Scripts installed to ~/.local/bin."
+fi
+
+# 7. LibreWolf Configuration & Extensions
 if command -v librewolf &>/dev/null; then
     info "Configuring LibreWolf (Search, Cookies, Extensions, gwfox Theme)..."
     
@@ -301,15 +328,20 @@ EOF
     success "gwfox theme and persistence applied."
 fi
 
-# 6. Enable System Services
+# 8. Enable System Services
 info "Configuring system services..."
 if command -v asusctl &>/dev/null; then
     info "Enabling asusd service..."
     sudo systemctl enable --now asusd
     success "Asusd service active."
 fi
+if command -v tailscale &>/dev/null; then
+    info "Enabling tailscaled service..."
+    sudo systemctl enable --now tailscaled
+    success "Tailscaled service active."
+fi
 
-# 7. Set Fish as default shell
+# 9. Set Fish as default shell
 if [[ "$SHELL" != *"/fish" ]]; then
     if command -v fish &>/dev/null; then
         if prompt_yes_no "Would you like to set Fish as your default shell?"; then

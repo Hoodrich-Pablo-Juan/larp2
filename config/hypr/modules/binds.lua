@@ -20,7 +20,10 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("librewolf"))
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("qutebrowser"))
+
+-- Fullscreen toggle
+hl.bind("ALT" .. " + space", hl.dsp.window.fullscreen())
 
 -- Asusctl Charge Limit (Bypass Charging)
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("asusctl -c 80 && notify-send 'Asusctl' 'Bypass Charging Enabled (80%)'"))
@@ -28,6 +31,13 @@ hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("asusctl -c 100 && notify-sen
 
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
+
+-- Layout toggle (Scrolling <-> Dwindle)
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle_layout.sh"))
+
+-- Turn screen back on (DPMS ON)
+hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/hypr/scripts/screen_on.sh"))
+hl.bind(mainMod .. " + Escape",    hl.dsp.exec_cmd("~/.config/hypr/scripts/screen_on.sh"))
 
 -- Navigation (Colemak-DH NEIO) - Like Arrow Keys
 -- N=Left, E=Down, I=Up, O=Right
@@ -56,6 +66,7 @@ hl.bind(mainMod .. " + mouse_down", hl.dsp.exec_cmd("hyprctl dispatch layoutmsg 
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.exec_cmd("hyprctl dispatch layoutmsg move -col"))
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind("mouse:272", hl.dsp.exec_cmd("~/.config/hypr/scripts/waybar_click.sh"), { non_consuming = true })
 
 -- Hardware keys
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })

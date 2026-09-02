@@ -1,0 +1,3 @@
+#!/bin/bash
+export GDK_SCALE=2
+exec /home/phil/.local/share/twine/bin/Twine "$@"

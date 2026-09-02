@@ -1,5 +1,5 @@
 amd-ucode
-awww
+hyprpaper
 base
 base-devel
 btrfs-progs
@@ -56,5 +56,10 @@ wireplumber
 pipewire
 pipewire-pulse
 hypridle
+power-profiles-daemon
+gnome-themes-extra
+tailscale
+waybar
+cava
 
 

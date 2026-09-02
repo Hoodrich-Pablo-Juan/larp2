@@ -4,5 +4,7 @@ vscodium-bin
 waybar-cava-git
 librewolf-bin
 asusctl
+tela-circle-icon-theme-black
 yay
 yay-debug
+sunshine-bin
