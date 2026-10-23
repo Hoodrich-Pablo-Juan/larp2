@@ -20,8 +20,7 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("qutebrowser"))
-
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("chromium"))
 -- Fullscreen toggle
 hl.bind("ALT" .. " + space", hl.dsp.window.fullscreen())
 
@@ -29,7 +28,9 @@ hl.bind("ALT" .. " + space", hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("asusctl -c 80 && notify-send 'Asusctl' 'Bypass Charging Enabled (80%)'"))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("asusctl -c 100 && notify-send 'Asusctl' 'Full Charging Enabled (100%)'"))
 
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+-- Screenshot: select region, save to ~/Downloads and copy to clipboard
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot.sh"))
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 
 -- Layout toggle (Scrolling <-> Dwindle)
@@ -45,6 +46,12 @@ hl.bind(mainMod .. " + N", hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + O", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + I", hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + E", hl.dsp.focus({ direction = "down" }))
+
+-- Move active window (Alt + NEIO) - same directions as focus keys
+hl.bind("ALT + N", hl.dsp.window.move({ direction = "left" }))
+hl.bind("ALT + O", hl.dsp.window.move({ direction = "right" }))
+hl.bind("ALT + I", hl.dsp.window.move({ direction = "up" }))
+hl.bind("ALT + E", hl.dsp.window.move({ direction = "down" }))
 
 -- Media Controls (Super + Arrows)
 hl.bind(mainMod .. " + up",    hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
