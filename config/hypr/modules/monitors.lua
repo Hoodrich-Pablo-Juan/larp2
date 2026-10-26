@@ -23,7 +23,7 @@ hl.monitor({
     output   = "HEADLESS-1",
     mode     = "2732x2048@60.00",
     position = "9999x0",
-    scale    = 2,
+    scale    = 1,
 })
 
 -- Persistent workspaces only — deliberately NO monitor field here.

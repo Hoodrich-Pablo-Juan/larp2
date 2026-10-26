@@ -50,10 +50,10 @@ if [ -z "$HEADLESS" ]; then
         exit 0
     fi
     if [ "$HYPR_CONF_PROVIDER" = "lua" ] ; then
-        hyprctl eval "hl.monitor({output=\"$HEADLESS\", mode=\"2732x2048@60.00\", position=\"9999x0\", scale=2})" >> "$LOG" 2>&1
+        hyprctl eval "hl.monitor({output=\"$HEADLESS\", mode=\"2732x2048@60.00\", position=\"9999x0\", scale=1})" >> "$LOG" 2>&1
         hyprctl eval "hl.workspace_rule({workspace=\"11\", monitor=\"$HEADLESS\", default=true, persistent=true})" >> "$LOG" 2>&1
     else
-        hyprctl keyword monitor "$HEADLESS,2732x2048@60,9999x0,2" >> "$LOG" 2>&1
+        hyprctl keyword monitor "$HEADLESS,2732x2048@60,9999x0,1" >> "$LOG" 2>&1
         hyprctl keyword workspace "11, monitor:$HEADLESS, default:true, persistent:true" >> "$LOG" 2>&1
     fi
     sed -i "s/^output_name *=.*/output_name = $HEADLESS/" "$CONF"

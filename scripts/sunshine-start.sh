@@ -50,9 +50,9 @@ echo "$(date -Iseconds) Headless created: $HEADLESS (Physical: $PHYSICAL)" >> "$
 
 # 2732x2048@60 (iPad Air 13" M2 ~4:3 aspect ratio), placed far off-screen so it can't be reached with the mouse.
 if [ "$HYPR_CONF_PROVIDER" = "lua" ] ; then
-    hyprctl eval "hl.monitor({output=\"$HEADLESS\", mode=\"2732x2048@60.00\", position=\"9999x0\", scale=2})" >> "$LOG" 2>&1
+    hyprctl eval "hl.monitor({output=\"$HEADLESS\", mode=\"2732x2048@60.00\", position=\"9999x0\", scale=1})" >> "$LOG" 2>&1
 else
-    hyprctl keyword monitor "$HEADLESS,2732x2048@60,9999x0,2" >> "$LOG" 2>&1
+    hyprctl keyword monitor "$HEADLESS,2732x2048@60,9999x0,1" >> "$LOG" 2>&1
 fi
 sleep 0.3
 
