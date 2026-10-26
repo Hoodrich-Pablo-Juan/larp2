@@ -8,3 +8,8 @@ tela-circle-icon-theme-black
 yay
 yay-debug
 sunshine-bin
+localsend-bin
+whatsdesk-bin
+wifitui-bin
+wlctl-bin
+neofetch

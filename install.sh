@@ -335,10 +335,29 @@ if command -v asusctl &>/dev/null; then
     sudo systemctl enable --now asusd
     success "Asusd service active."
 fi
+if command -v sshd &>/dev/null; then
+    info "Enabling sshd..."
+    sudo systemctl enable sshd
+    success "sshd enabled (tailnet-only listener, see step 9)."
+fi
 if command -v tailscale &>/dev/null; then
     info "Enabling tailscaled service..."
     sudo systemctl enable --now tailscaled
     success "Tailscaled service active."
+
+    # Tailscale SSH is a tailscaled preference, not a file on disk, so the repo
+    # cannot carry it — set it here. Needs a logged-in node, so a failure is
+    # only a warning.
+    if sudo tailscale set --ssh 2>/dev/null; then
+        success "Tailscale SSH enabled (tailnet TCP/22, no password)."
+    else
+        warn "Could not enable Tailscale SSH — log in with 'sudo tailscale up', then run 'sudo tailscale set --ssh'."
+    fi
+fi
+if command -v plasmalogin &>/dev/null; then
+    info "Enabling plasmalogin (autologin display manager)..."
+    sudo systemctl enable plasmalogin.service
+    success "plasmalogin enabled — boots straight back into the Hyprland session."
 fi
 
 # 9. System Configuration (tailnet-only SSH, shutdown -> restart)
@@ -374,6 +393,24 @@ if [ -d "$SYSTEM_DIR" ]; then
     # shutdown sequence but reboot instead of cutting power.
     install_system_file "/etc/systemd/system/systemd-poweroff.service.d/override.conf" 644
     install_system_file "/etc/systemd/system/systemd-halt.service.d/override.conf" 644
+
+    # Lid-close must not suspend the host: the lid is how it is parked while it
+    # keeps streaming, and a suspend takes the Sunshine session and the tailnet
+    # down with it.
+    install_system_file "/etc/systemd/logind.conf.d/10-lid-always-on.conf" 644
+
+    # Autologin: the session returns by itself, which is what makes the
+    # restart-instead-of-shutdown policy useful when nobody is at the machine.
+    install_system_file "/etc/plasmalogin.conf.d/autologin.conf" 644
+
+    # Machine basics that are hand-written rather than installer-generated: the
+    # console keymap that matches the Colemak-DH layout, and the session locale.
+    install_system_file "/etc/vconsole.conf" 644
+    install_system_file "/etc/locale.conf" 644
+
+    # usblp is blacklisted so ipp-usb (installed from packages.txt) can claim a
+    # USB printer directly instead of competing with the kernel's usblp driver.
+    install_system_file "/etc/modprobe.d/usblp-blacklist.conf" 644
 
     sudo systemctl daemon-reload
     success "System configuration installed and systemd reloaded."

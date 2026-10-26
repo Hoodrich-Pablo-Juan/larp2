@@ -61,5 +61,28 @@ gnome-themes-extra
 tailscale
 waybar
 cava
+openssh
+plasma-login-manager
+wl-clipboard
+wofi
+mesa
+moonlight-qt
+apostrophe
+code
+cowsay
+cups
+ipp-usb
+nss-mdns
+flatpak
+flatseal
+github-cli
+gpsd
+lapce
+mkinitcpio
+npm
+tcpdump
+typesetter
+typst
+usbutils
 
 
