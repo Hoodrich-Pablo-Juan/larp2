@@ -17,6 +17,10 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + S", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch exit"))
+-- Shut down for real: the system policy turns a normal poweroff into a restart
+-- (system/etc/systemd/system/systemd-poweroff.service.d), so this neutralises it
+-- for one shutdown. Installed to ~/.local/bin by install.sh.
+hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd("~/.local/bin/poweroff-now.sh"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(menu))

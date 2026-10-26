@@ -388,6 +388,20 @@ if [ -d "$SYSTEM_DIR" ]; then
             error "sshd configuration test failed — leaving sshd running untouched."
         fi
     fi
+
+    # Shutdown-as-restart is a systemd policy, so the one way to still cut power
+    # (SUPER + SHIFT + Q) has to override it at runtime. Prove that override
+    # actually wins here, without powering the machine off.
+    if [ -x "$HOME/.local/bin/poweroff-now.sh" ]; then
+        info "Verifying the real power-off path (dry run)..."
+        if "$HOME/.local/bin/poweroff-now.sh" --dry-run; then
+            success "Real power-off (SUPER + SHIFT + Q) works: the reboot policy can be overridden."
+        else
+            warn "poweroff-now.sh dry run failed — SUPER + SHIFT + Q will not cut power. Run it without --dry-run to see why."
+        fi
+    else
+        warn "poweroff-now.sh not found in ~/.local/bin — SUPER + SHIFT + Q will not work."
+    fi
 fi
 
 # 10. Set Fish as default shell
