@@ -423,7 +423,14 @@ if [ -d "$SYSTEM_DIR" ]; then
     install_system_file "/usr/local/bin/bluetooth-audio-ready.sh" 755
     install_system_file "/etc/systemd/system/bluetooth-audio-ready.service" 644
 
+    # Keep the combo radio out of USB runtime autosuspend: btusb suspends it
+    # every 2s, and under an A2DP stream that stalls the HCI queue — audible
+    # dropouts and whole-system hitching, worst on the high-bitrate codecs.
+    install_system_file "/etc/modprobe.d/btusb-autosuspend.conf" 644
+    install_system_file "/etc/udev/rules.d/50-bluetooth-no-autosuspend.rules" 644
+
     sudo systemctl daemon-reload
+    sudo udevadm control --reload 2>/dev/null || true
     success "System configuration installed and systemd reloaded."
 
     if [ -f "/etc/systemd/system/bluetooth-audio-ready.service" ]; then

@@ -1,0 +1,12 @@
+# Never runtime-suspend the Bluetooth controller.
+#
+# See /etc/modprobe.d/btusb-autosuspend.conf for the reasoning: btusb autosuspends
+# this radio after 2 seconds, which under an A2DP stream means the controller is
+# suspended and resumed continuously, stalling the HCI queue (audible dropouts,
+# whole-system hitching) and dropping the 676-byte aptX HD frames.
+#
+# This half covers the "module already loaded" case and any btusb build that
+# ignores the enable_autosuspend parameter. 0489:e0f5 is the MediaTek combo radio
+# in this laptop; Wi-Fi and Bluetooth share it, so autosuspend stalls the radio,
+# not just Bluetooth audio.
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0489", ATTR{idProduct}=="e0f5", TEST=="power/control", ATTR{power/control}="on"
