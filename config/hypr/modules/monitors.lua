@@ -6,27 +6,51 @@
 --
 -- Physical outputs only — never a catch-all (""): an empty-name rule re-applies
 -- on every reload and clobbers the HEADLESS display Sunshine streams from.
---
--- Order matters only for where "auto" lands: the laptop panel owns 0x0 and the
--- external display sits to its right, which is how the desk is arranged.
---
--- Docked behaviour (panel dark while the monitor is attached) is NOT decided
--- here. It lives in scripts/panel.sh, which is what makes a config reload
--- unable to leave the panel dark with the cursor stranded on it: every path in
--- that script ends by focusing a lit output, and focusing an output warps the
--- cursor into it. SUPER + ALT + E overrides it in both directions.
 
 local INTERNAL = "eDP-1"
-local EXTERNAL = "DP-1"
+local EXTERNALS = {
+    "DP-1", "DP-2", "DP-3", "DP-4", "DP-5", "DP-6", "DP-7", "HDMI-A-1",
+}
 
--- Positions are explicit, never "auto": auto places an output to the right of
--- whatever is currently the rightmost monitor, and HEADLESS lives at 9999x0 —
--- so "auto" lands the real monitor off at x=12731 where the cursor cannot go.
+-- The external output that is currently plugged in, if any.
+local function external()
+    for _, name in ipairs(EXTERNALS) do
+        local m = hl.get_monitor(name)
+        if m then
+            return m
+        end
+    end
+    return nil
+end
+
+-- Where the laptop panel goes: at the origin when it is alone, otherwise to the
+-- right of the external output.
+--
+-- Computed here instead of being left at 0x0, because a panel sitting on top of
+-- a monitor is an overlapping layout — Hyprland warns about it and the pointer
+-- hits the wrong screen at the seam. The panel is dark while docked (see
+-- scripts/panel.sh), but it still occupies a place in the layout, so that place
+-- has to be somewhere valid.
+local function panel_position()
+    local ext = external()
+    if not ext then
+        return "0x0"
+    end
+    -- Guarded: if the monitor object lacks any of these fields, fall back to the
+    -- undocked position rather than breaking the whole config.
+    local ok, pos = pcall(function()
+        return tostring(math.floor(ext.x + ext.width / ext.scale)) .. "x0"
+    end)
+    if ok and pos then
+        return pos
+    end
+    return "0x0"
+end
 
 hl.monitor({
     output   = INTERNAL,
     mode     = "preferred",
-    position = "0x0",
+    position = panel_position(),
     scale    = 1.5,
 })
 
@@ -35,7 +59,7 @@ hl.monitor({
 -- the display advertises 3440x1440@60 as "preferred", which is the one mode
 -- nobody wants.
 hl.monitor({
-    output   = EXTERNAL,
+    output   = "DP-1",
     mode     = "3440x1440@180.00Hz",
     position = "0x0",
     scale    = 1,

@@ -21,6 +21,10 @@
    -- bridge that plays audio a phone streams to this machine out of the
    -- current default sink.
    hl.exec_cmd("blueman-applet")
+   -- Code-free pairing: keeps a NoInputNoOutput agent in the default slot, so a
+   -- phone pairing does not stall waiting for a confirmation this side never
+   -- shows. Runs after blueman-applet, which registers an agent of its own.
+   hl.exec_cmd("~/.local/bin/bt-agent.sh")
    hl.exec_cmd("~/.local/bin/bt-audio-bridge.sh")
    -- Keeps a connected Bluetooth speaker from powering itself off during
    -- silence (inaudible 25 Hz tone, Bluetooth outputs only).
