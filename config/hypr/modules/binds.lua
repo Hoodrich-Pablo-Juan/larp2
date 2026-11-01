@@ -22,6 +22,9 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2
 -- for one shutdown. Installed to ~/.local/bin by install.sh.
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd("~/.local/bin/poweroff-now.sh"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(fileManager))
+-- Bluetooth manager: pair the speaker, or pair a phone that streams to this
+-- machine. The same applet also lives in the waybar tray.
+hl.bind(mainMod .. " + ALT + B", hl.dsp.exec_cmd("blueman-manager"))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("chromium"))
@@ -43,6 +46,11 @@ hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle_layout
 -- Turn screen back on (DPMS ON)
 hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/hypr/scripts/screen_on.sh"))
 hl.bind(mainMod .. " + Escape",    hl.dsp.exec_cmd("~/.config/hypr/scripts/screen_on.sh"))
+
+-- Laptop panel: bring it back when docked (and put it away again). The script
+-- also parks the cursor on whichever output is lit, so the panel can never be
+-- re-enabled into a state you cannot point at.
+hl.bind(mainMod .. " + ALT + E", hl.dsp.exec_cmd("~/.config/hypr/scripts/panel.sh toggle"))
 
 -- Navigation (Colemak-DH NEIO) - Like Arrow Keys
 -- N=Left, E=Down, I=Up, O=Right

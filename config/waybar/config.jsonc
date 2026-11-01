@@ -13,8 +13,13 @@
         "clock#right"
     ],
     "modules-right": [
+        "tray",
         "battery"
     ],
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8
+    },
     "clock": {
         "format": "{:%H}"
     },

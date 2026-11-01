@@ -359,6 +359,11 @@ if command -v plasmalogin &>/dev/null; then
     sudo systemctl enable plasmalogin.service
     success "plasmalogin enabled — boots straight back into the Hyprland session."
 fi
+if command -v bluetoothctl &>/dev/null; then
+    info "Enabling bluetooth service..."
+    sudo systemctl enable --now bluetooth
+    success "Bluetooth active — the adapter advertises an A2DP sink, so phones can pair, and blueman pairs speakers."
+fi
 
 # 9. System Configuration (tailnet-only SSH, shutdown -> restart)
 SYSTEM_DIR="$SCRIPT_DIR/system"
@@ -412,8 +417,20 @@ if [ -d "$SYSTEM_DIR" ]; then
     # USB printer directly instead of competing with the kernel's usblp driver.
     install_system_file "/etc/modprobe.d/usblp-blacklist.conf" 644
 
+    # Bluetooth as an audio target: BlueZ forgets pairability and
+    # discoverability on reboot, so a oneshot restores them (phones stream here
+    # over A2DP, the bridge script plays it out of the default sink).
+    install_system_file "/usr/local/bin/bluetooth-audio-ready.sh" 755
+    install_system_file "/etc/systemd/system/bluetooth-audio-ready.service" 644
+
     sudo systemctl daemon-reload
     success "System configuration installed and systemd reloaded."
+
+    if [ -f "/etc/systemd/system/bluetooth-audio-ready.service" ]; then
+        info "Enabling the Bluetooth audio target at boot..."
+        sudo systemctl enable bluetooth-audio-ready.service
+        success "Adapter will be pairable and discoverable after every boot."
+    fi
 
     if command -v tailscale &>/dev/null && sudo systemctl cat sshd.service &>/dev/null; then
         info "Validating sshd configuration..."

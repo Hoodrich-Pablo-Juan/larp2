@@ -1,0 +1,21 @@
+# Makes the adapter pairable and discoverable at boot so a phone can pair and
+# stream audio to this machine (see /usr/local/bin/bluetooth-audio-ready.sh).
+#
+# Ordered after bluetooth.service rather than merely wanted by it: bluetoothd
+# is dbus-activated, so it can already be running before this unit is queued,
+# and the script needs a live adapter on the bus.
+#
+# Revert: systemctl disable --now bluetooth-audio-ready.service && rm /etc/systemd/system/bluetooth-audio-ready.service
+[Unit]
+Description=Bluetooth adapter ready as an audio target (pairable, discoverable)
+After=bluetooth.service dbus.service
+Wants=bluetooth.service
+ConditionPathExists=/sys/class/bluetooth
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/bluetooth-audio-ready.sh
+
+[Install]
+WantedBy=multi-user.target

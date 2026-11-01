@@ -17,5 +17,10 @@
    hl.exec_cmd("asusctl -c 80")
    hl.exec_cmd(os.getenv("HOME") .. "/.config/waybar/scripts/oled_protection.sh")
    hl.exec_cmd("~/.local/bin/sunshine-start.sh")
+   -- Bluetooth: tray icon (pair/connect devices, incl. the speaker) and the
+   -- bridge that plays audio a phone streams to this machine out of the
+   -- current default sink.
+   hl.exec_cmd("blueman-applet")
+   hl.exec_cmd("~/.local/bin/bt-audio-bridge.sh")
 
  end)

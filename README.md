@@ -12,7 +12,7 @@ This repository contains my personal system configuration files extracted direct
 * **Music Visualizer**: [Cava](config/cava/)
 * **Text Editor/IDE**: [VSCodium](config/VSCodium/) (user settings)
 * **Themes**: GTK 3.0 and GTK 4.0 configurations
-* **System**: tailnet-only SSH, autologin, lid-always-on, shutdown-as-restart policy (see [`system/`](system/))
+* **System**: tailnet-only SSH, autologin, lid-always-on, shutdown-as-restart policy, Bluetooth audio target (see [`system/`](system/))
 
 ---
 
@@ -45,7 +45,9 @@ larp2/
 │   ├── etc/systemd/system/sshd.service.d/10-tailscale.conf
 │   ├── etc/systemd/system/systemd-poweroff.service.d/override.conf
 │   ├── etc/systemd/system/systemd-halt.service.d/override.conf
-│   └── usr/local/bin/sshd-tailscale-listen.sh
+│   ├── etc/systemd/system/bluetooth-audio-ready.service
+│   ├── usr/local/bin/sshd-tailscale-listen.sh
+│   └── usr/local/bin/bluetooth-audio-ready.sh
 ├── scripts/                 # Helper scripts copied to ~/.local/bin
 ├── install.sh               # Install and symlink script
 ├── packages.txt             # Native Arch packages installed on this system
@@ -76,7 +78,7 @@ To apply these configuration files onto a new system or restore them on your cur
 4. **Links Wallpapers**: Creates a symbolic link for `wallpapers/` into `~/Pictures/Wallpapers`.
 5. **Sets Default Shell**: Detects if your active shell is not Fish, and offers to automatically change it using `chsh`.
 6. **Installs System Config**: Copies `system/` into `/etc` and `/usr/local/bin`, reloads systemd, and restarts `sshd` after validating its config with `sshd -t`. It then dry-runs the real power-off helper to confirm the shutdown-as-restart policy can still be overridden.
-7. **Enables Services**: `sshd`, `tailscaled` (plus Tailscale SSH via `tailscale set --ssh`), `plasmalogin` for autologin, and `asusd`.
+7. **Enables Services**: `sshd`, `tailscaled` (plus Tailscale SSH via `tailscale set --ssh`), `plasmalogin` for autologin, `bluetooth` with the `bluetooth-audio-ready` unit, and `asusd`.
 
 ---
 
@@ -96,6 +98,18 @@ These files are **copied**, not symlinked — `sshd` and `systemd` read them as 
 
 **Powering off for real.** `SUPER + SHIFT + Q` runs `poweroff-now.sh`: it writes a runtime drop-in (`/run/systemd/system/systemd-poweroff.service.d/zz-real-poweroff.conf`, `SuccessAction=poweroff-force`), reloads systemd, checks the override actually won, and only then powers off. `/run` is a tmpfs, so the override is gone at the next boot and the machine is back to reboot-instead-of-poweroff — this script stays the only way to cut power. It needs root or passwordless `sudo` (`sudo -n`), because it is triggered by a keybind with no terminal to prompt on. `poweroff-now.sh --dry-run` proves the override works without powering anything off.
 
+**Docked laptop panel.** While an external monitor is attached the laptop panel goes dark, so workspaces and new windows are on the screen you are actually looking at. `SUPER + ALT + E` (`config/hypr/scripts/panel.sh toggle`) brings the panel back and puts it away again; the choice is remembered in `$XDG_RUNTIME_DIR/panel-forced-on` so a config reload cannot undo it.
+
+The switch is **DPMS**, not disabling the output. A disabled output takes its workspaces and the cursor with it, which is exactly how you end up staring at a wallpaper with no pointer while applications launch somewhere invisible. Every path through `panel.sh` ends by focusing a lit output, and focusing an output warps the cursor into it. The panel is also parked beside the monitor (`eDP-1` at `3440x0`) *before* it is darkened, so bringing it back never drops it on top of the live screen, and it is put back at the origin when no monitor is attached. Monitor positions are explicit everywhere, never `auto`: auto places an output beyond the right-most monitor, and the HEADLESS streaming display sits at `9999x0`.
+
+**Monitor refresh.** `DP-1` is pinned to `3440x1440@180.00Hz`. Left to itself the display advertises `3440x1440@60` as its EDID-preferred mode, which is the one mode nobody wants.
+
+**Bluetooth: a speaker, and this laptop as one.** `blueman` is the GUI — `SUPER + ALT + B` opens the device manager, and the applet sits in the waybar tray. The `bluetooth` service is enabled by the installer and `bluez-utils` is in `packages.txt`; without `bluez-utils` there is no `bluetoothctl` for the scripts to drive. The adapter advertises the A2DP **Sink** role out of the box, so a phone can pair and stream here. Two pieces make that actually work:
+- `bluetooth-audio-ready.service` — BlueZ restores neither pairability nor discoverability across a reboot, so this oneshot puts the adapter back into "pairable, discoverable, no timeout" at every boot. Without it the machine is invisible to phones until you poke it.
+- `scripts/bt-audio-bridge.sh` (started from `autostart.lua`) — PipeWire presents an incoming A2DP stream as an audio *source* (`bluez_input.<MAC>`), and a source is never auto-linked to an output, so the phone reports "connected" and plays into silence. The bridge loopbacks each such source to the current default sink, rebuilds the loopback if the default sink changes mid-stream (the speaker connecting, say), and drops it when the phone disconnects.
+
+That gives the chain you want: phone —A2DP—> laptop —loopback—> whatever the default sink is, i.e. the Bluetooth speaker.
+
 Revert any of it:
 ```bash
 sudo rm -r /etc/systemd/system/systemd-poweroff.service.d \
@@ -109,6 +123,10 @@ sudo rm /etc/ssh/sshd_config.d/20-tailscale.conf \
         /usr/local/bin/sshd-tailscale-listen.sh
 sudo rm -r /etc/systemd/system/sshd.service.d
 sudo systemctl daemon-reload && sudo systemctl restart sshd
+sudo systemctl disable --now bluetooth-audio-ready.service   # adapter not discoverable at boot
+sudo rm /etc/systemd/system/bluetooth-audio-ready.service \
+        /usr/local/bin/bluetooth-audio-ready.sh
+sudo systemctl disable --now bluetooth                       # no Bluetooth at all
 ```
 
 ---
