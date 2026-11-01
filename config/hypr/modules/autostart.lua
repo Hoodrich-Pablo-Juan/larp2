@@ -22,5 +22,8 @@
    -- current default sink.
    hl.exec_cmd("blueman-applet")
    hl.exec_cmd("~/.local/bin/bt-audio-bridge.sh")
+   -- Keeps a connected Bluetooth speaker from powering itself off during
+   -- silence (inaudible 25 Hz tone, Bluetooth outputs only).
+   hl.exec_cmd("~/.local/bin/bt-keepalive.sh")
 
  end)

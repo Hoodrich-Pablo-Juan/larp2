@@ -112,6 +112,12 @@ The switch is **DPMS**, not disabling the output. A disabled output takes its wo
 
 That gives the chain you want: phone —A2DP—> laptop —loopback—> whatever the default sink is, i.e. the Bluetooth speaker.
 
+**Casting from Android.** Make the adapter findable — `bluetooth-audio-ready.service` does it at every boot (`discoverable on`, `DiscoverableTimeout=0`, so it never times out), or poke it once with `bluetoothctl discoverable on`. On the phone: Settings → Connected devices → Pair new device → **larp**, accept the code on both sides, allow media audio, then just play something. Android sends it over A2DP and it leaves through the laptop's default sink. No app and no screen mirroring: the phone appears as an audio source, not a remote display.
+
+Audio follows the *default* sink, so if you want it out of the speaker rather than the laptop's own speakers, make the speaker the default: `pactl list short sinks` for the `bluez_output.<MAC>.1` name, then `pactl set-default-sink bluez_output.<MAC>.1`. `bt-audio-bridge.sh` follows a default-sink change mid-stream and rebuilds its loopback.
+
+**Speaker keep-alive.** Speakers power themselves off after 10-20 minutes of silence, which turns every listen into a re-pair. `scripts/bt-keepalive.sh` (started from `autostart.lua`) streams a 25 Hz sine at about -66 dBFS into any connected `bluez_output.*` sink. That is far below what the speaker can reproduce and below the room's noise floor, so nothing is audible — but it is a non-silent digital stream, which is what auto-standby watches for. Digital silence would not work: all-zero samples look like "no audio" to most firmware. It never targets the laptop's own speakers, and it idles while nothing Bluetooth is attached.
+
 Revert any of it:
 ```bash
 sudo rm -r /etc/systemd/system/systemd-poweroff.service.d \
