@@ -79,6 +79,7 @@ To apply these configuration files onto a new system or restore them on your cur
 5. **Sets Default Shell**: Detects if your active shell is not Fish, and offers to automatically change it using `chsh`.
 6. **Installs System Config**: Copies `system/` into `/etc` and `/usr/local/bin`, reloads systemd, and restarts `sshd` after validating its config with `sshd -t`. It then dry-runs the real power-off helper to confirm the shutdown-as-restart policy can still be overridden.
 7. **Enables Services**: `sshd`, `tailscaled` (plus Tailscale SSH via `tailscale set --ssh`), `plasmalogin` for autologin, `bluetooth` with the `bluetooth-audio-ready` unit, and `asusd`.
+8. **Builds the Hyprland plugin**: runs `hyprpm add`/`enable`/`reload` for `Hypr-DarkWindow` at the tag matching the running Hyprland release, which is what draws the frosted-glass windows. Skipped (with the command to run) outside a Hyprland session.
 
 ---
 
@@ -122,6 +123,8 @@ Audio follows the *default* sink, so if you want it out of the speaker rather th
 
 **Speaker keep-alive.** Speakers power themselves off after 10-20 minutes of silence, which turns every listen into a re-pair. `scripts/bt-keepalive.sh` (started from `autostart.lua`) streams a 25 Hz sine at about -66 dBFS into any connected `bluez_output.*` sink. That is far below what the speaker can reproduce and below the room's noise floor, so nothing is audible — but it is a non-silent digital stream, which is what auto-standby watches for. Digital silence would not work: all-zero samples look like "no audio" to most firmware. It never targets the laptop's own speakers, and it idles while nothing Bluetooth is attached.
 
+**Frosted glass windows.** Every window is translucent and the blur behind it reads as frosted glass. The transparency is a shader rather than an opacity value: [Hypr-DarkWindow](https://github.com/micha4w/Hypr-DarkWindow) (built with `hyprpm`) runs `config/hypr/shaders/frosted.glsl` over each window's fragment shader, lowering its alpha and adding a faint milky glaze, so text keeps its weight while the desktop shows through. `config/hypr/modules/frosted.lua` registers that shader (`frostOpacity`, `frostTint`, `frostGrain` are the knobs) and applies it to every window except fullscreen ones, where a game or stream should stay opaque. The old per-app `opacity` rules for kitty, VSCodium and LibreWolf are gone — they would stack on top of the shader. hyprpm builds against the running Hyprland's ABI, so the plugin has to be rebuilt after a Hyprland upgrade (`hyprpm update`); until then `frosted.lua` finds no plugin and windows are simply opaque.
+
 Revert any of it:
 ```bash
 sudo rm -r /etc/systemd/system/systemd-poweroff.service.d \
@@ -139,6 +142,8 @@ sudo systemctl disable --now bluetooth-audio-ready.service   # adapter not disco
 sudo rm /etc/systemd/system/bluetooth-audio-ready.service \
         /usr/local/bin/bluetooth-audio-ready.sh
 sudo systemctl disable --now bluetooth                       # no Bluetooth at all
+hyprpm disable Hypr-DarkWindow                               # windows opaque again
+hyprpm remove https://github.com/micha4w/Hypr-DarkWindow
 ```
 
 ---

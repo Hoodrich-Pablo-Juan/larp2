@@ -465,7 +465,40 @@ if [ -d "$SYSTEM_DIR" ]; then
     fi
 fi
 
-# 10. Set Fish as default shell
+# 10. Hyprland plugin: Hypr-DarkWindow (frosted-glass windows)
+# hyprpm builds the plugin against the running Hyprland's ABI, so this can only
+# run inside a session; on a bare TTY it is skipped and modules/frosted.lua
+# leaves windows opaque. `hyprpm update` installs the headers hyprpm needs
+# before it can build anything.
+if command -v hyprpm >/dev/null 2>&1; then
+    if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+        info "Installing the Hypr-DarkWindow plugin (frosted glass windows)..."
+        hyprpm update >/dev/null 2>&1 || true
+
+        if ! hyprpm list 2>/dev/null | grep -q "Hypr-DarkWindow"; then
+            hdw_url="https://github.com/micha4w/Hypr-DarkWindow"
+            # Release tag matching the running Hyprland. A -git build reports a
+            # version without a matching tag, so fall back to the plugin's main
+            # branch (its commit pins pick the right revision).
+            hl_tag=$(hyprctl version 2>/dev/null | sed -n 's/^Hyprland \([0-9][0-9.]*\) .*/v\1/p')
+            if [ -n "$hl_tag" ] && printf 'y\n' | hyprpm add "$hdw_url" "$hl_tag" >/dev/null 2>&1; then
+                success "Hypr-DarkWindow built for $hl_tag."
+            else
+                warn "No plugin tag for this Hyprland build — using the plugin's main branch."
+                printf 'y\n' | hyprpm add "$hdw_url" >/dev/null 2>&1 || warn "hyprpm add failed; windows stay opaque."
+            fi
+        fi
+
+        hyprpm enable Hypr-DarkWindow >/dev/null 2>&1 || true
+        hyprpm reload >/dev/null 2>&1 || true
+        success "Hypr-DarkWindow enabled — windows are translucent with frosted glass."
+    else
+        warn "Not inside a Hyprland session — skipping the plugin build."
+        warn "Run this from the desktop session: hyprpm add https://github.com/micha4w/Hypr-DarkWindow && hyprpm enable Hypr-DarkWindow && hyprpm reload"
+    fi
+fi
+
+# 11. Set Fish as default shell
 if [[ "$SHELL" != *"/fish" ]]; then
     if command -v fish &>/dev/null; then
         if prompt_yes_no "Would you like to set Fish as your default shell?"; then

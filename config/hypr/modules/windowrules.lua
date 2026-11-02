@@ -35,23 +35,9 @@ hl.window_rule({
     no_focus = true,
 })
 
-hl.window_rule({
-    name = "kitty-transparency",
-    match = { class = "kitty" },
-    opacity = 0.8,
-})
-
-hl.window_rule({
-    name = "vscode-transparency",
-    match = { class = "VSCodium" },
-    opacity = "0.95 0.90",
-})
-
-hl.window_rule({
-    name = "librewolf-transparency",
-    match = { class = "librewolf" },
-    opacity = "0.90 0.85",
-})
+-- Per-app opacity rules used to live here. Translucency is now global and
+-- comes from the frosted-glass shader (modules/frosted.lua), so a per-app
+-- opacity would stack on top of it and make those windows stand out.
 
 hl.layer_rule({
     name = "rofi_popup",

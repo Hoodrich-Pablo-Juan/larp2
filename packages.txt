@@ -15,6 +15,9 @@ git
 grim
 htop
 hyprland
+hyprpm
+cmake
+meson
 kitty
 linux
 linux-firmware
