@@ -429,6 +429,13 @@ if [ -d "$SYSTEM_DIR" ]; then
     install_system_file "/etc/modprobe.d/btusb-autosuspend.conf" 644
     install_system_file "/etc/udev/rules.d/50-bluetooth-no-autosuspend.rules" 644
 
+    # Pass-through charging: the charge limit depends on whether the adapter is
+    # plugged in, so a unit applies it at boot and the udev rule re-applies it
+    # on every plug/unplug.
+    install_system_file "/usr/local/bin/battery-charge-limit.sh" 755
+    install_system_file "/etc/systemd/system/battery-charge-limit.service" 644
+    install_system_file "/etc/udev/rules.d/60-battery-charge-limit.rules" 644
+
     sudo systemctl daemon-reload
     sudo udevadm control --reload 2>/dev/null || true
     success "System configuration installed and systemd reloaded."
@@ -437,6 +444,12 @@ if [ -d "$SYSTEM_DIR" ]; then
         info "Enabling the Bluetooth audio target at boot..."
         sudo systemctl enable bluetooth-audio-ready.service
         success "Adapter will be pairable and discoverable after every boot."
+    fi
+
+    if [ -x "/usr/local/bin/battery-charge-limit.sh" ]; then
+        info "Enabling the pass-through charge limit..."
+        sudo systemctl enable --now battery-charge-limit.service
+        sudo /usr/local/bin/battery-charge-limit.sh --status || true
     fi
 
     if command -v tailscale &>/dev/null && sudo systemctl cat sshd.service &>/dev/null; then

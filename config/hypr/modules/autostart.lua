@@ -17,7 +17,8 @@
    hl.exec_cmd("hypridle")
    hl.exec_cmd("systemctl start power-profiles-daemon.service")
    hl.exec_cmd("powerprofilesctl set power-saver")
-   hl.exec_cmd("asusctl -c 80")
+   -- Charge limit is not set from here: battery-charge-limit.service owns it,
+   -- because the right value depends on AC state, not on the session starting.
    hl.exec_cmd(os.getenv("HOME") .. "/.config/waybar/scripts/oled_protection.sh")
    hl.exec_cmd("~/.local/bin/sunshine-start.sh")
    -- Bluetooth: tray icon (pair/connect devices, incl. the speaker) and the

@@ -78,7 +78,7 @@ To apply these configuration files onto a new system or restore them on your cur
 4. **Links Wallpapers**: Creates a symbolic link for `wallpapers/` into `~/Pictures/Wallpapers`, and installs `wallpaper-rotate.sh` (with the other helper scripts) so the set cycles hourly.
 5. **Sets Default Shell**: Detects if your active shell is not Fish, and offers to automatically change it using `chsh`.
 6. **Installs System Config**: Copies `system/` into `/etc` and `/usr/local/bin`, reloads systemd, and restarts `sshd` after validating its config with `sshd -t`. It then dry-runs the real power-off helper to confirm the shutdown-as-restart policy can still be overridden.
-7. **Enables Services**: `sshd`, `tailscaled` (plus Tailscale SSH via `tailscale set --ssh`), `plasmalogin` for autologin, `bluetooth` with the `bluetooth-audio-ready` unit, and `asusd`.
+7. **Enables Services**: `sshd`, `tailscaled` (plus Tailscale SSH via `tailscale set --ssh`), `plasmalogin` for autologin, `bluetooth` with the `bluetooth-audio-ready` unit, `battery-charge-limit` (pass-through charging, applied and reported at the end of the run), and `asusd`.
 8. **Builds the Hyprland plugin**: runs `hyprpm add`/`enable`/`reload` for `Hypr-DarkWindow` at the tag matching the running Hyprland release, which is what draws the frosted-glass windows. Skipped (with the command to run) outside a Hyprland session.
 
 ---
@@ -92,6 +92,8 @@ These files are **copied**, not symlinked — `sshd` and `systemd` read them as 
 **Autologin.** `plasmalogin` logs `phil` straight into the `hyprland.desktop` session and relogs in if it exits, so the machine comes back to a usable desktop after a restart or a crash with nobody at the keyboard.
 
 **Lid close never suspends.** `logind.conf.d/10-lid-always-on.conf` sets all three lid switches and `IdleAction` to `ignore`. The lid is how this laptop is parked while it keeps streaming; a suspend would take the Sunshine session and the tailnet with it. All three lid keys matter because logind checks docked first, then AC, then battery.
+
+**Pass-through charging.** `battery-charge-limit.sh` (a systemd unit plus a udev rule) keeps the cells idle while the adapter is plugged in: the charge limit is set to the current capacity when that is above the 80% floor, or to the floor when it is below it, so the EC stops charging right there and the laptop runs off AC. Unplugging restores 100%, so it leaves the house full. Pinning the limit to the capacity — rather than a fixed 80 — is what records "stop here" at the top end: with the battery already at 100%, a limit of 80 has nothing left to stop. `battery-charge-limit.sh --status` prints capacity, status, limit and AC state, and `CHARGE_FLOOR` overrides the floor. The old `asusctl -c 80` call in `autostart.lua` is gone: two owners of the same sysfs value fight each other at every login.
 
 **Machine basics.** `locale.conf` pins `LANG=en_US.UTF-8`; `vconsole.conf` sets the console keymap to `mod-dh-iso-us` so the TTY matches the Colemak-DH layout used in the session; `modprobe.d/usblp-blacklist.conf` blacklists `usblp` so `ipp-usb` can drive a USB printer directly.
 
@@ -146,6 +148,10 @@ sudo systemctl disable --now bluetooth-audio-ready.service   # adapter not disco
 sudo rm /etc/systemd/system/bluetooth-audio-ready.service \
         /usr/local/bin/bluetooth-audio-ready.sh
 sudo systemctl disable --now bluetooth                       # no Bluetooth at all
+sudo systemctl disable --now battery-charge-limit.service     # charges to 100 again
+sudo rm /etc/systemd/system/battery-charge-limit.service \
+        /etc/udev/rules.d/60-battery-charge-limit.rules \
+        /usr/local/bin/battery-charge-limit.sh
 hyprpm disable Hypr-DarkWindow                               # windows opaque again
 hyprpm remove https://github.com/micha4w/Hypr-DarkWindow
 ```

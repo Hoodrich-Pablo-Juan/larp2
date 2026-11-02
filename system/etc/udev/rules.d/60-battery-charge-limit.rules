@@ -1,0 +1,5 @@
+# Re-apply the charge limit whenever the adapter is plugged in or pulled out:
+# the limit depends on the AC state, so a stale limit after unplugging would
+# leave the laptop unable to charge past it.
+ACTION=="change", SUBSYSTEM=="power_supply", ATTR{online}=="1", TAG+="systemd", ENV{SYSTEMD_WANTS}+="battery-charge-limit.service"
+ACTION=="change", SUBSYSTEM=="power_supply", ATTR{online}=="0", TAG+="systemd", ENV{SYSTEMD_WANTS}+="battery-charge-limit.service"

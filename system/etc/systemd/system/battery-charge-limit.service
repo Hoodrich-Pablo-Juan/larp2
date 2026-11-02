@@ -1,0 +1,15 @@
+# Applies the pass-through charge limit at boot and whenever the AC state
+# changes (the udev rule pulls this unit in with SYSTEMD_WANTS).
+#
+# Revert: systemctl disable --now battery-charge-limit.service && rm /etc/systemd/system/battery-charge-limit.service /etc/udev/rules.d/60-battery-charge-limit.rules
+[Unit]
+Description=Battery charge limit (pass-through charging while plugged in)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/battery-charge-limit.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
