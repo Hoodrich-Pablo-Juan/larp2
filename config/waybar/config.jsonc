@@ -2,7 +2,7 @@
     "layer": "top",
     "position": "top",
     "width": 1000,
-    "height": 32,
+    "height": 39,
     "modules-left": [
         "pulseaudio",
         "cava"
