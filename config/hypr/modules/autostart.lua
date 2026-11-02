@@ -11,6 +11,9 @@
    hl.exec_cmd("waybar")
    hl.exec_cmd("swaync")
    hl.exec_cmd("hyprpaper")
+   -- hyprpaper only ever changes wallpaper over IPC, so this watcher is what
+   -- rotates the set hourly (see scripts/wallpaper-rotate.sh).
+   hl.exec_cmd("~/.local/bin/wallpaper-rotate.sh")
    hl.exec_cmd("hypridle")
    hl.exec_cmd("systemctl start power-profiles-daemon.service")
    hl.exec_cmd("powerprofilesctl set power-saver")
