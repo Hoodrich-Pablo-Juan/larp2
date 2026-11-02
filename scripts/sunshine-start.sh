@@ -48,11 +48,14 @@ fi
 
 echo "$(date -Iseconds) Headless created: $HEADLESS (Physical: $PHYSICAL)" >> "$LOG"
 
-# 2732x2048@60 (iPad Air 13" M2 ~4:3 aspect ratio), placed far off-screen so it can't be reached with the mouse.
+# 2732x2048@60 — the tablet's native mode at scale 2 (logical 1366x1024), placed far
+# off-screen so it can't be reached with the mouse. Native mode keeps Moonlight's blit 1:1
+# (any other mode gets rescaled on the client and looks soft); integer scale keeps text on
+# whole pixels. Keep in sync with config/hypr/modules/monitors.lua and sunshine-connect.sh.
 if [ "$HYPR_CONF_PROVIDER" = "lua" ] ; then
-    hyprctl eval "hl.monitor({output=\"$HEADLESS\", mode=\"2732x2048@60.00\", position=\"9999x0\", scale=1})" >> "$LOG" 2>&1
+    hyprctl eval "hl.monitor({output=\"$HEADLESS\", mode=\"2732x2048@60.00\", position=\"9999x0\", scale=2})" >> "$LOG" 2>&1
 else
-    hyprctl keyword monitor "$HEADLESS,2732x2048@60,9999x0,1" >> "$LOG" 2>&1
+    hyprctl keyword monitor "$HEADLESS,2732x2048@60,9999x0,2" >> "$LOG" 2>&1
 fi
 sleep 0.3
 

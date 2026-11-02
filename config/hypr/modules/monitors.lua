@@ -69,12 +69,50 @@ hl.monitor({
 -- sunshine-start.sh uses when it creates the output, kept static so a reload
 -- re-applies it instead of dropping the runtime setting and auto-placing it
 -- on-screen. Inert when Sunshine isn't running.
-hl.monitor({
-    output   = "HEADLESS-1",
-    mode     = "2732x2048@60.00",
-    position = "9999x0",
-    scale    = 1,
-})
+--
+-- 2732x2048 @ 2, i.e. the tablet panel's native mode at an integer scale.
+-- Both halves of that matter:
+--   * the mode must be native, because Moonlight blits the captured frame onto
+--     the tablet's 2732x2048 screen — any other mode (2736x2052 for 1.5,
+--     2744x2058 for 1.75) has to be rescaled by the client, which softens
+--     every pixel;
+--   * the scale must be a whole number, because a fractional one (1.5, 2/3 of
+--     a pixel per unit) rasterises text off-grid and blurs it.
+-- 2 halves the desktop to 1366x1024 — bigger UI than the 1.5 setup gave. The
+-- fractional scales were dropped for exactly this: Hyprland silently snaps
+-- them anyway (it refuses 1.4 outright, and running 1.5 on the native mode
+-- collapses to 4/3 = 2049x1536).
+-- Applied to whatever HEADLESS-N currently exists rather than to the literal
+-- name "HEADLESS-1": Hyprland names a new virtual output with the next free
+-- index, so after a recreation (sunshine-start.sh removes the old one and
+-- creates a new one, which happens on every Sunshine restart) the output is
+-- HEADLESS-2, HEADLESS-3, ... A rule naming HEADLESS-1 then matches nothing and
+-- a reload resets the output to the default 1920x1080 — a client mid-stream
+-- drops to a quarter of the panel's pixels. Enumerating at load keeps the
+-- geometry correct across reloads whatever the index.
+local HEADLESS_MODE = "2732x2048@60.00"
+
+local function apply_headless_geometry()
+    local ok, monitors = pcall(function()
+        return hl.get_monitors()
+    end)
+    if not ok or type(monitors) ~= "table" then
+        return
+    end
+    for _, m in ipairs(monitors) do
+        local name = m and m.name and tostring(m.name)
+        if name and name:find("HEADLESS") then
+            hl.monitor({
+                output   = name,
+                mode     = HEADLESS_MODE,
+                position = "9999x0",
+                scale    = 2,
+            })
+        end
+    end
+end
+
+apply_headless_geometry()
 
 -- Persistent workspaces only. Deliberately NO monitor field: a workspace rule
 -- that names a monitor is re-applied on every config reload and forcibly
