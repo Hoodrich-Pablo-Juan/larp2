@@ -25,6 +25,7 @@ micro
 nano
 network-manager-applet
 networkmanager
+inter-font
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
