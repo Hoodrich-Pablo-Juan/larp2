@@ -14,6 +14,7 @@
 window#waybar {
     background-color: transparent;
     color: @fg;
+    opacity: 0.8;
 }
 
 #workspaces {
@@ -46,11 +47,11 @@ window#waybar {
     font-size: 1.12rem;
 }
 
-/* Same face and weight as the clock (Google Sans 500, inherited from *), and
-   full white: the bar reads as one typeface at one strength. */
+/* Same face and colour as the clock (Google Sans, inherited from *), one
+   weight lighter so the white does not pull the eye off the time. */
 #pulseaudio, #battery {
     padding: 0 10px;
-    font-weight: 500;
+    font-weight: 400;
     color: @white;
 }
 
