@@ -15,3 +15,4 @@ wlctl-bin
 neofetch
 ttf-google-sans-hinted
 ttf-comfortaa
+ttf-outfit

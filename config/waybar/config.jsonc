@@ -1,7 +1,7 @@
 {
     "layer": "top",
     "position": "top",
-    "width": 1000,
+    "width": 900,
     "height": 39,
     "modules-left": [
         "pulseaudio",
