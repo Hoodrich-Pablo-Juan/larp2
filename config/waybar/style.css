@@ -46,10 +46,11 @@ window#waybar {
     font-size: 1.12rem;
 }
 
-/* Heavier than the rest: these are read at a glance, and the icon glyphs are
-   the smallest thing on the bar. */
+/* Montserrat, and heavier than the rest: these are read at a glance, and they
+   are the smallest thing on the bar. */
 #pulseaudio, #battery {
     padding: 0 10px;
+    font-family: "Montserrat", "GeistMono Nerd Font", sans-serif;
     font-weight: 500;
     color: @fg-muted;
 }
