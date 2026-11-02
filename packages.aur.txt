@@ -14,3 +14,4 @@ wifitui-bin
 wlctl-bin
 neofetch
 ttf-google-sans-hinted
+ttf-comfortaa

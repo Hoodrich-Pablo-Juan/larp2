@@ -46,12 +46,12 @@ window#waybar {
     font-size: 1.12rem;
 }
 
-/* Montserrat, and heavier than the rest: these are read at a glance, and they
+/* Comfortaa, and heavier than the rest: these are read at a glance, and they
    are the smallest thing on the bar. */
 #pulseaudio, #battery {
     padding: 0 10px;
-    font-family: "Montserrat", "GeistMono Nerd Font", sans-serif;
-    font-weight: 500;
+    font-family: "Comfortaa", "GeistMono Nerd Font", sans-serif;
+    font-weight: 700;
     color: @fg-muted;
 }
 
