@@ -21,8 +21,15 @@ void windowShader(inout vec4 color) {
 
     vec3 rgb = color.rgb / color.a; // unpremultiply
 
-    // Diffused light: lift and cool the colour a touch instead of washing it out.
-    rgb = mix(rgb, rgb * 0.96 + vec3(0.045, 0.05, 0.06), frostTint);
+    // Blow out the mid-tones toward a neutral gray so windows that land in
+    // the darker-to-mid range of values read as frosted glass rather than an
+    // opaque tint. White and near-white keep enough contrast; dark and mid-gray
+    // land nearer to a flat gray, which is where the frosted look is noticed
+    // most. Keeping the tint slightly cool preserves the milky glaze for windows
+    // closer to white.
+    float gray = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
+    rgb = mix(rgb, vec3(gray), frostTint * clamp(gray, 0.0, 0.9));
+    rgb = mix(rgb, rgb * 0.96 + vec3(0.045, 0.05, 0.06), frostTint * (1.0 - clamp(gray, 0.0, 0.9)));
 
     // Static per-pixel grain in window space is the "frost". x_PixelPos is used
     // on purpose rather than x_Time: a frozen pattern costs nothing, an animated
