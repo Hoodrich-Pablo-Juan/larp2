@@ -49,7 +49,7 @@ window#waybar {
 
 /* Same face and colour as the clock (Google Sans, inherited from *), one
    weight lighter so the white does not pull the eye off the time. */
-#pulseaudio, #battery {
+#pulseaudio, #custom-battery {
     padding: 0 10px;
     font-weight: 400;
     color: @white;
