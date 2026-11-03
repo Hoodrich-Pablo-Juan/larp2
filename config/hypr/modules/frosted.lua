@@ -18,9 +18,9 @@ end
 hl.plugin.darkwindow.load_shader("frosted", {
     path = os.getenv("HOME") .. "/.config/hypr/shaders/frosted.glsl",
     args = {
-        frostOpacity = { 0.82 }, -- how much of the backdrop comes through
-        frostTint    = { 0.10 }, -- milky glaze
-        frostGrain   = { 0.006 }, -- fine grain, the "frosted" texture
+        frostOpacity = { 0.70 }, -- how much of the backdrop comes through
+        frostTint    = { 0.13 }, -- milky glaze
+        frostGrain   = { 0.007 }, -- fine grain, the "frosted" texture
     },
     -- Tells Hyprland to enable blur for these windows even though their alpha
     -- is opaque as far as it knows.
