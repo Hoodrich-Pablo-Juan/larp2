@@ -39,7 +39,9 @@ idx=$(( capacity * (${#icons[@]} - 1) / 100 ))
 # genuinely charging, and unplugged it is genuinely discharging.
 if [ "$ac" -eq 1 ] && [ "$capacity" -ge "$threshold" ]; then
     cls="passthrough"
-    text="${icons[$idx]} ${capacity}% passthrough"
+    # The word replaces the battery glyph here: an icon next to it reads as a
+    # charge level, which is not what the readout is saying.
+    text="passthrough (${capacity}%)"
     label="pass-through (running off the adapter)"
 elif [ "$status" = "Charging" ]; then
     cls="charging"
