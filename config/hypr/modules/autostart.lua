@@ -8,6 +8,12 @@
 -- Or execute your favorite apps at launch like this:
 --
    hl.on("hyprland.start", function () 
+   -- Frosted glass is a hyprpm plugin (Hypr-DarkWindow), and plugins can only be
+   -- loaded once the compositor is already up — which is after this config was
+   -- parsed, so frosted.lua's "no plugin" guard has already skipped the shader.
+   -- Load the plugin, then reload the config so frosted.lua runs a second time
+   -- with the plugin present and shades every window.
+   hl.exec_cmd("sh -c 'hyprpm reload -n >/dev/null 2>&1; hyprctl reload >/dev/null 2>&1'")
    hl.exec_cmd("waybar")
    hl.exec_cmd("swaync")
    hl.exec_cmd("hyprpaper")
