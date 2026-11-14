@@ -72,7 +72,9 @@ if [ -f "/etc/arch-release" ]; then
             # Remove comments and whitespace
             pkg=$(echo "$pkg" | sed -e 's/#.*//' -e 's/[[:space:]]//g')
             [[ -z "$pkg" ]] && continue
-            if ! pacman -Qq "$pkg" &>/dev/null; then
+            # -T (deptest) also accepts an installed package that *provides* this
+            # name, so a waybar-cava-git install satisfies a "waybar" entry.
+            if ! pacman -T "$pkg" &>/dev/null; then
                 missing_native+=("$pkg")
             fi
         done < "$SCRIPT_DIR/packages.txt"
@@ -89,6 +91,15 @@ if [ -f "/etc/arch-release" ]; then
 
     # Check AUR packages
     if [ -f "$SCRIPT_DIR/packages.aur.txt" ]; then
+        # AUR packages here that drop-in replace a native package: the AUR entry
+        # provides *and* conflicts with the native one, so the native package is
+        # kept out of packages.txt and any installed copy is removed beforehand.
+        # Without this, pacman installs the native bar, the AUR build conflicts,
+        # and re-running the script adds the native bar right back.
+        declare -A AUR_REPLACES=(
+            [waybar-cava-git]="waybar"
+        )
+
         missing_aur=()
         while IFS= read -r pkg || [[ -n "$pkg" ]]; do
             pkg=$(echo "$pkg" | sed -e 's/#.*//' -e 's/[[:space:]]//g')
@@ -97,7 +108,7 @@ if [ -f "/etc/arch-release" ]; then
             if [[ "$pkg" == "antigravity-cli" || "$pkg" == "yay" || "$pkg" == "paru" ]]; then
                 continue
             fi
-            if ! pacman -Qq "$pkg" &>/dev/null; then
+            if ! pacman -T "$pkg" &>/dev/null; then
                 missing_aur+=("$pkg")
             fi
         done < "$SCRIPT_DIR/packages.aur.txt"
@@ -113,6 +124,25 @@ if [ -f "/etc/arch-release" ]; then
                     AUR_HELPER="paru"
                 fi
                 
+                # Drop installed native packages that the AUR replacements
+                # conflict with. This is a real removal, so ask first.
+                to_remove=()
+                for pkg in "${missing_aur[@]}"; do
+                    replaced="${AUR_REPLACES[$pkg]:-}"
+                    if [ -n "$replaced" ] && pacman -Qq "$replaced" &>/dev/null; then
+                        to_remove+=("$replaced")
+                    fi
+                done
+                if [ ${#to_remove[@]} -gt 0 ]; then
+                    warn "${to_remove[*]} conflicts with the AUR package(s) above and must be removed first."
+                    if prompt_yes_no "Remove ${to_remove[*]} so its AUR replacement can be installed?" "Y"; then
+                        sudo pacman -R --noconfirm "${to_remove[@]}" ||
+                            warn "Could not remove ${to_remove[*]} — the AUR install will fail on the conflict."
+                    else
+                        warn "Leaving ${to_remove[*]} installed — the AUR install will fail on the conflict."
+                    fi
+                fi
+
                 if [ -n "$AUR_HELPER" ]; then
                     $AUR_HELPER -S --needed --noconfirm "${missing_aur[@]}"
                 else
@@ -356,8 +386,33 @@ if command -v tailscale &>/dev/null; then
 fi
 if command -v plasmalogin &>/dev/null; then
     info "Enabling plasmalogin (autologin display manager)..."
-    sudo systemctl enable plasmalogin.service
-    success "plasmalogin enabled — boots straight back into the Hyprland session."
+
+    # display-manager.service is a single alias, so only one DM can own it.
+    # A leftover greetd/gdm/sddm/ly keeps the symlink and makes `systemctl
+    # enable plasmalogin.service` fail with "File ... already exists and is a
+    # symlink to ...". Disable whoever holds it first.
+    dm_link="/etc/systemd/system/display-manager.service"
+    if [ -L "$dm_link" ]; then
+        current_dm=$(basename "$(readlink -f "$dm_link")" .service)
+        if [ "$current_dm" != "plasmalogin" ]; then
+            warn "Another display manager owns display-manager.service: $current_dm"
+            if prompt_yes_no "Disable $current_dm so plasmalogin can take over?" "Y"; then
+                sudo systemctl disable "$current_dm.service" || true
+                # `disable` normally drops the alias itself; remove any leftover
+                # symlink so the enable below cannot trip over it.
+                sudo rm -f "$dm_link"
+                success "$current_dm disabled."
+            else
+                warn "Leaving $current_dm enabled — plasmalogin will not start on boot."
+            fi
+        fi
+    fi
+
+    if sudo systemctl enable plasmalogin.service; then
+        success "plasmalogin enabled — boots straight back into the Hyprland session."
+    else
+        warn "plasmalogin could not take over $dm_link. Check for another display manager with: systemctl status display-manager"
+    fi
 fi
 if command -v bluetoothctl &>/dev/null; then
     info "Enabling bluetooth service..."
@@ -454,10 +509,22 @@ if [ -d "$SYSTEM_DIR" ]; then
 
     if command -v tailscale &>/dev/null && sudo systemctl cat sshd.service &>/dev/null; then
         info "Validating sshd configuration..."
+        # OpenSSH ships without host keys on a fresh install and `sshd -t`
+        # refuses to run without them, which used to fail this whole check.
+        sudo ssh-keygen -A
+
         if sudo sshd -t; then
-            info "Restarting sshd to bind the tailnet listener..."
-            sudo systemctl restart sshd.service
-            success "sshd restarted with the tailnet listener."
+            # The unit's ExecStartPre only binds the Tailscale IP, and it gives
+            # up after ~60s when the node has no IPv4 yet (not logged in), so
+            # restarting here would just start a systemd restart loop.
+            if [ -z "$(sudo tailscale ip -4 2>/dev/null | head -n1)" ]; then
+                warn "Tailscale has no IPv4 address (node not logged in), so sshd cannot bind its listener yet."
+                warn "Run 'sudo tailscale up', then 'sudo systemctl restart sshd'."
+            else
+                info "Restarting sshd to bind the tailnet listener..."
+                sudo systemctl restart sshd.service
+                success "sshd restarted with the tailnet listener."
+            fi
         else
             error "sshd configuration test failed — leaving sshd running untouched."
         fi

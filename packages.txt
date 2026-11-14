@@ -63,7 +63,8 @@ hypridle
 power-profiles-daemon
 gnome-themes-extra
 tailscale
-waybar
+# waybar is intentionally absent: waybar-cava-git (packages.aur.txt) provides
+# and conflicts with it, so it is installed from the AUR instead.
 cava
 openssh
 plasma-login-manager
